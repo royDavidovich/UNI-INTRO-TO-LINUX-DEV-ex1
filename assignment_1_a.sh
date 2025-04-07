@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ ! "$1" ]; then
-  echo "Insert how many blocks to get as param for the script"
+  echo "Insert as parameter for the script how many blocks you want to get"
   exit 1
 fi
 
@@ -30,4 +30,4 @@ for (( i=0; i<NUM_BLOCKS; i++ )); do
   current_hash=$prev_block
 done
 
-echo $CSV_FILE
+echo "updated '$CSV_FILE' directory"
