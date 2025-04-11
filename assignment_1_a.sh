@@ -12,8 +12,6 @@ echo "hash,height,total,time,relayed_by,prev_block" > "$CSV_FILE"
 
 current_hash=$(curl -s https://api.blockcypher.com/v1/btc/main | grep '"hash"' | grep -o -E "[0-9a-f]{64}")
 
-count=0
-
 for (( i=0; i<NUM_BLOCKS; i++ )); do
 
   block_data=$(curl -s "https://api.blockcypher.com/v1/btc/main/blocks/$current_hash")
