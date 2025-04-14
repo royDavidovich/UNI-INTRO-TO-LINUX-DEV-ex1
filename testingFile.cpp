@@ -5,7 +5,7 @@
 
 using namespace std;
 
-#define GET_BLOCKCHAIN_BASH_FILE_PATH "/home/roy/myRepos/UNI-INTRO-TO-LINUX-DEV-ex1/assignment_1_a.sh"
+#define GET_BLOCKCHAIN_BASH_FILE_PATH "./assignment_1_a.sh"
 #define DB_CSV_FILE_NAME "res.csv"
 
 class BlockChain
