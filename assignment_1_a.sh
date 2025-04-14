@@ -9,13 +9,13 @@ NUM_BLOCKS=$1
 CSV_FILE="./res.csv"
 
 echo "hash,height,total,time,relayed_by,prev_block" > "$CSV_FILE"
-
+echo "reached here 1"
 current_hash=$(curl -s https://api.blockcypher.com/v1/btc/main | grep '"hash"' | grep -o -E "[0-9a-f]{64}")
-
+echo "reached here 2"
 for (( i=0; i<NUM_BLOCKS; i++ )); do
 
   block_data=$(curl -s "https://api.blockcypher.com/v1/btc/main/blocks/$current_hash")
-
+  echo "reached here 3+$i"
   hash=$(echo "$block_data" | grep '"hash"' | grep -o -E "[0-9a-f]{64}")
   height=$(echo "$block_data" | grep '"height"' | grep -o -E "[0-9]+")
   total=$(echo "$block_data" | grep '"total"' | grep -o -E "[0-9]+")
