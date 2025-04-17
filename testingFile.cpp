@@ -296,8 +296,8 @@ int main()
     
     //BlockChain::printdb(DB_CSV_FILE_NAME);
     // BlockChain::refreshData(GET_BLOCKCHAIN_BASH_FILE_PATH);
-    BlockChain::FindBlockInDataBaseByHash(GET_BLOCKCHAIN_BASH_FILE_PATH);
-    BlockChain::FindBlockInDataBaseByHeight(GET_BLOCKCHAIN_BASH_FILE_PATH);
+    BlockChain::FindBlockInDataBaseByHash(BLOCKCHAIN_BASH_FILE_PATH);
+    BlockChain::FindBlockInDataBaseByHeight(BLOCKCHAIN_BASH_FILE_PATH);
     //BlockChain::printdb(DB_CSV_FILE_NAME);
 
     return 0;
