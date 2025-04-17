@@ -6,7 +6,7 @@ if [ ! "$1" ]; then
 fi
 
 NUM_BLOCKS=$1
-CSV_FILE="./res.csv"
+CSV_FILE="./database.csv"
 
 echo "hash,height,total,time,relayed_by,prev_block" > "$CSV_FILE"
 echo "reached here 1"
