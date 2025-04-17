@@ -26,6 +26,10 @@
 *.la
 *.a
 
-# Executables
+# Executables (common for Linux/macOS)
 *.out
-*.app
+block_finder
+refresh_db
+printdb
+testingFile
+printdb
