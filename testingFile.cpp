@@ -5,9 +5,9 @@
 
 using namespace std;
 
-#define GET_BLOCKCHAIN_BASH_FILE_PATH "./assignment_1_a.sh"
+#define BLOCKCHAIN_BASH_FILE_PATH "./assignment_1_a.sh"
 // #define DB_CSV_FILE_NAME "res.csv"
-#define DB_CSV_FILE_NAME "database.csv"
+#define DATABASE_CSV_FILE_NAME "database.csv"
 
 class BlockChain
 {
@@ -85,7 +85,7 @@ public:
     {
         bool success = false;
 
-        ifstream file(DB_CSV_FILE_NAME);
+        ifstream file(DATABASE_CSV_FILE_NAME);
         if (!file.is_open())
         {
             cerr << "Error opening file!" << endl;
@@ -157,7 +157,7 @@ public:
         }
         
         // Valid hash - run script
-        ifstream file(DB_CSV_FILE_NAME);
+        ifstream file(DB_fileName);
         if (!file.is_open())
         {
             cerr << "Error opening file!" << endl;
@@ -243,7 +243,7 @@ public:
         
         // Valid height - run script
         success = false;
-        ifstream file(DB_CSV_FILE_NAME);
+        ifstream file(DB_fileName);
         if (!file.is_open())
         {
             cerr << "Error opening file!" << endl;
@@ -291,13 +291,10 @@ public:
 
 int main()
 {
-    // string DB_fileNmae = "res.csv";
-    // string bashFilePath = "/home/roy/myRepos/UNI-INTRO-TO-LINUX-DEV-ex1/assignment_1_a.sh";
-    
     //BlockChain::printdb(DB_CSV_FILE_NAME);
     // BlockChain::refreshData(GET_BLOCKCHAIN_BASH_FILE_PATH);
-    BlockChain::FindBlockInDataBaseByHash(GET_BLOCKCHAIN_BASH_FILE_PATH);
-    BlockChain::FindBlockInDataBaseByHeight(GET_BLOCKCHAIN_BASH_FILE_PATH);
+    BlockChain::FindBlockInDataBaseByHash(BLOCKCHAIN_BASH_FILE_PATH);
+    BlockChain::FindBlockInDataBaseByHeight(BLOCKCHAIN_BASH_FILE_PATH);
     //BlockChain::printdb(DB_CSV_FILE_NAME);
 
     return 0;
