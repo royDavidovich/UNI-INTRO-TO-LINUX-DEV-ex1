@@ -37,25 +37,27 @@ int main()
 
 static bool printdb(const string &DB_fileName)
 {
-    bool success = false;
+    bool success = true;
     ifstream file;
 
-    if (!fileIsReadable(DB_fileName))
+    if (success && !fileIsReadable(DB_fileName))
     {
         cerr << "File is not readable or does not exist: " << DB_fileName << endl;
-        return false;
+        success = false;
     }
 
-    if (!openDatabaseFile(DB_fileName, file))
+    if (success && !openDatabaseFile(DB_fileName, file))
     {
         cerr << "Error opening file!" << endl;
-        return false;
+        success = false;
     }
 
-    vector<Block> blocks = parseBlocksFromCSV(file);
-    printBlockChain(blocks);
-
-    success = true;
+    if (success)
+    {
+        vector<Block> blocks = parseBlocksFromCSV(file);
+        printBlockChain(blocks);
+    }
+    
     return success;
 }
 
