@@ -1,13 +1,14 @@
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <regex>
 
 using namespace std;
 
-#define BLOCKCHAIN_BASH_FILE_PATH "./assignment_1_a.sh"
-#define DATABASE_CSV_FILE_NAME "database.csv"
-#define MODE_MODE_SEARCH_BY_HASH "--hash"
-#define MODE_MODE_SEARCH_BY_HEIGHT "--height"
+constexpr const char *BLOCKCHAIN_BASH_FILE_PATH = "./assignment_1_a.sh";
+constexpr const char *DATABASE_CSV_FILE_NAME = "database.csv";
+constexpr const char *MODE_SEARCH_BY_HASH = "--hash";
+constexpr const char *MODE_SEARCH_BY_HEIGHT = "--height";
 
 struct Block
 {
@@ -19,157 +20,183 @@ struct Block
     string prev_block;
 };
 
-static bool isValidHash(const string& i_HashToCheck)
+// === Utilities ===
+static bool fileIsReadable(const string &fileName)
 {
-    if (i_HashToCheck.empty())
+    ifstream file(fileName);
+    return file.is_open();
+}
+
+static bool openDatabaseCSV(ifstream &file, const string &fileName)
+{
+    file.open(fileName);
+    if (!file.is_open())
+    {
+        cerr << "Error opening file: " << fileName << endl;
+        return false;
+    }
+    return true;
+}
+
+// === Validation ===
+static bool isValidHash(const string &hash)
+{
+    return !hash.empty() &&
+           hash.length() == 64 &&
+           regex_match(hash, regex("^[0-9a-fA-F]{64}$"));
+}
+
+static bool isValidHeight(const string &height)
+{
+    return !height.empty() &&
+           regex_match(height, regex("^[1-9][0-9]*$")); // Positive integer only
+}
+
+// === Block Parsing & Display ===
+static bool tryParseBlockFromLine(const string &line, Block &b)
+{
+    stringstream ss(line);
+    string temp;
+
+    if (!getline(ss, b.hash, ','))
+        return false;
+    if (!getline(ss, temp, ','))
+        return false;
+    b.height = stol(temp);
+    if (!getline(ss, temp, ','))
+        return false;
+    b.total = stoll(temp);
+    if (!getline(ss, b.time, ','))
+        return false;
+    if (!getline(ss, b.relayed_by, ','))
+        return false;
+    if (!getline(ss, b.prev_block, ','))
+        return false;
+
+    return true;
+}
+
+static void printBlock(const Block &b)
+{
+    cout << "hash: " << b.hash << endl;
+    cout << "height: " << b.height << endl;
+    cout << "total: " << b.total << endl;
+    cout << "time: " << b.time << endl;
+    cout << "relayed_by: " << b.relayed_by << endl;
+    cout << "prev_block: " << b.prev_block << endl;
+}
+
+// === Search by Hash ===
+static bool FindBlockByHash(const string &fileName, const string &hashQuery)
+{
+    ifstream file;
+    if (!openDatabaseCSV(file, fileName))
     {
         return false;
     }
-    return ((i_HashToCheck.length() == 64) && (regex_match(i_HashToCheck, regex("^[0-9a-fA-F]{64}$"))));
+
+    string line;
+    getline(file, line); // Skip header
+
+    Block b;
+    while (getline(file, line))
+    {
+        if (!tryParseBlockFromLine(line, b))
+        {
+            continue;
+        }
+
+        if (b.hash == hashQuery)
+        {
+            cout << "Printing block with hash: " << hashQuery << endl;
+            printBlock(b);
+            return true;
+        }
+    }
+
+    cout << "Block with hash: " << hashQuery << " was not found in the local database." << endl;
+    cout << "Please run refresh database first." << endl;
+    return false;
 }
 
-static bool isValidHeight(const string& i_HeightToCheck)
+// === Search by Height ===
+static bool FindBlockByHeight(const string &fileName, const string &heightQuery)
 {
-    if (i_HeightToCheck.empty())
+    ifstream file;
+    if (!openDatabaseCSV(file, fileName))
     {
         return false;
     }
-    return regex_match(i_HeightToCheck, regex("^[1-9][0-9]*$"));  //positive integer only
+
+    long targetHeight = stol(heightQuery);
+    string line;
+    getline(file, line); // Skip header
+
+    Block b;
+    while (getline(file, line))
+    {
+        if (!tryParseBlockFromLine(line, b))
+        {
+            continue;
+        }
+
+        if (b.height == targetHeight)
+        {
+            cout << "Printing block with height: " << heightQuery << endl;
+            printBlock(b);
+            return true;
+        }
+    }
+
+    cout << "Block with height: " << heightQuery << " was not found in the local database." << endl;
+    cout << "Please run refresh database first." << endl;
+    return false;
 }
 
-static void printBlock(const Block& i_Block)
+// === Command Handlers ===
+static bool handleFindByHash(const string &input)
 {
-    cout << "hash: " << i_Block.hash << endl;
-    cout << "height: " << i_Block.height << endl;
-    cout << "total: " << i_Block.total << endl;
-    cout << "time: " << i_Block.time << endl;
-    cout << "relayed_by: " << i_Block.relayed_by << endl;
-    cout << "prev_block: " << i_Block.prev_block << endl;
+    if (!isValidHash(input))
+    {
+        cerr << "Invalid hash format." << endl;
+        return false;
+    }
+    return FindBlockByHash(DATABASE_CSV_FILE_NAME, input);
 }
 
-static bool FindBlockInDataBaseByHash(string i_DataBaseFileName, string i_HashToFetch = "")
+static bool handleFindByHeight(const string &input)
 {
-    bool success = false;
-
-    // Valid hash - run script
-    ifstream file(i_DataBaseFileName);
-    if (!file.is_open())
+    if (!isValidHeight(input))
     {
-        cerr << "Error opening file!" << endl;
+        cerr << "Invalid height format." << endl;
+        return false;
     }
-    else
-    {
-        string line;
-        getline(file, line); // Skip header
-
-        Block b;
-        string temp;
-        while (getline(file, line))
-        {
-            stringstream ss(line);
-            getline(ss, b.hash, ',');
-            if (b.hash == i_HashToFetch)
-            {
-                getline(ss, temp, ',');
-                b.height = stoi(temp);
-                getline(ss, temp, ',');
-                b.total = stoll(temp);
-                getline(ss, b.time, ',');
-                getline(ss, b.relayed_by, ',');
-                getline(ss, b.prev_block, ',');
-
-                cout << "Printing block with hash: " << i_HashToFetch << endl;
-                printBlock(b);
-                success = true;
-                break;
-            }
-        }
-
-        if (success != true)
-        {
-            cout << "Block with hash: " << i_HashToFetch << " was not found in the local database." << endl;
-            cout << "Please run refresh database first." << endl;
-        }
-    }
-
-    return success;
+    return FindBlockByHeight(DATABASE_CSV_FILE_NAME, input);
 }
 
-static bool FindBlockInDataBaseByHeight(string i_DataBaseFileName, string i_UserInput = "")
-{
-    long heightToFetch = stol(i_UserInput);
-    bool success = false;
-
-    // Valid height - run script
-    ifstream file(i_DataBaseFileName);
-    if (!file.is_open())
-    {
-        cerr << "Error opening file!" << endl;
-    }
-    else
-    {
-        string line;
-        getline(file, line); // Skip header
-
-        Block b;
-        string temp;
-        while (getline(file, line))
-        {
-            stringstream ss(line);
-            getline(ss, b.hash, ',');
-            getline(ss, temp, ',');
-            b.height = stoi(temp);
-            if (b.height == heightToFetch)
-            {
-                getline(ss, temp, ',');
-                b.total = stoll(temp);
-                getline(ss, b.time, ',');
-                getline(ss, b.relayed_by, ',');
-                getline(ss, b.prev_block, ',');
-
-                cout << "Printing block with height: " << to_string(heightToFetch) << endl;
-                printBlock(b);
-                success = true;
-                break;
-            }
-        }
-
-        if (success != true)
-        {
-            cout << "Block with height: " << to_string(heightToFetch) << " was not found in the local database." << endl;
-            cout << "Please run refresh database first." << endl;
-        }
-    }
-
-    return success;
-}
-
+// === Main ===
 int main(int argc, char *argv[])
 {
     if (argc < 3)
     {
-        cerr << "Error: No argument provided." << endl;
+        cerr << "Usage: " << argv[0] << " [--hash HASH] | [--height HEIGHT]" << endl;
         return 1;
     }
 
-    string mode_mode = argv[1];
-    string userInput = argv[2];
+    const string mode = argv[1];
+    const string input = argv[2];
 
-    if (mode_mode == MODE_MODE_SEARCH_BY_HASH)
+    if (mode == MODE_SEARCH_BY_HASH)
     {
-        isValidHash(userInput);
-        FindBlockInDataBaseByHash(DATABASE_CSV_FILE_NAME, userInput);
+        return handleFindByHash(input) ? 0 : 1;
     }
-    else if (mode_mode == MODE_MODE_SEARCH_BY_HEIGHT)
+    else if (mode == MODE_SEARCH_BY_HEIGHT)
     {
-        isValidHeight(userInput);
-        FindBlockInDataBaseByHeight(DATABASE_CSV_FILE_NAME, userInput);
+        return handleFindByHeight(input) ? 0 : 1;
     }
     else
     {
-        cerr << "Error: No argument provided." << endl;
+        cerr << "Invalid mode. Use --hash or --height." << endl;
         return 1;
     }
-
-    return 0;
 }

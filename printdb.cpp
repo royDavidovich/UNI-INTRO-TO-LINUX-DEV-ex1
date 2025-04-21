@@ -18,7 +18,6 @@ struct Block
     string prev_block;
 };
 
-// === Function Declarations ===
 static bool printdb(const string &DB_fileName);
 static bool fileIsReadable(const string &fileName);
 static bool openDatabaseFile(const string &fileName, ifstream &file);

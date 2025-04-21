@@ -4,7 +4,6 @@
 
 using namespace std;
 
-// === Function Declarations ===
 void printMenu();
 void printDatabase();
 void printBlockByHash();
