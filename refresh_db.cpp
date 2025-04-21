@@ -3,8 +3,8 @@
 
 using namespace std;
 
-#define BLOCKCHAIN_BASH_FILE_PATH "./assignment_1_a.sh"
-#define DATABASE_CSV_FILE_NAME "database.csv"
+constexpr const char *BLOCKCHAIN_BASH_FILE_PATH = "./assignment_1_a.sh";
+constexpr const char *DATABASE_CSV_FILE_NAME = "database.csv";
 
 bool isValidRefreshRequest(const string &i_NumberOfBlocksToFetch)
 {
