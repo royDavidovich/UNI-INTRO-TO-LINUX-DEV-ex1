@@ -18,7 +18,28 @@ struct Block
     string time;
     string relayed_by;
     string prev_block;
+
+    void print() const
+    {
+        cout << "hash: " << hash << endl;
+        cout << "height: " << height << endl;
+        cout << "total: " << total << endl;
+        cout << "time: " << time << endl;
+        cout << "relayed_by: " << relayed_by << endl;
+        cout << "prev_block: " << prev_block << endl;
+    }
 };
+
+static bool fileIsReadable(const string &fileName);
+static bool openDatabaseCSV(ifstream &file, const string &fileName);
+static bool isValidHash(const string &i_HashToCheck);
+static bool isValidHeight(const string &i_HeightToCheck);
+static bool tryParseBlockFromLine(const string &line, Block &i_Block);
+static void printBlock(const Block &i_Block);
+static bool FindBlockByHash(const string &fileName, const string &i_hashQuery);
+static bool FindBlockByHeight(const string &fileName, const string &i_heightQuery);
+static bool handleFindByHash(const string &input);
+static bool handleFindByHeight(const string &input);
 
 // === Utilities ===
 static bool fileIsReadable(const string &fileName)
@@ -39,55 +60,55 @@ static bool openDatabaseCSV(ifstream &file, const string &fileName)
 }
 
 // === Validation ===
-static bool isValidHash(const string &hash)
+static bool isValidHash(const string &i_HashToCheck)
 {
-    return !hash.empty() &&
-           hash.length() == 64 &&
-           regex_match(hash, regex("^[0-9a-fA-F]{64}$"));
+    return !i_HashToCheck.empty() &&
+           i_HashToCheck.length() == 64 &&
+           regex_match(i_HashToCheck, regex("^[0-9a-fA-F]{64}$"));
 }
 
-static bool isValidHeight(const string &height)
+static bool isValidHeight(const string &i_HeightToCheck)
 {
-    return !height.empty() &&
-           regex_match(height, regex("^[1-9][0-9]*$")); // Positive integer only
+    return !i_HeightToCheck.empty() &&
+           regex_match(i_HeightToCheck, regex("^[1-9][0-9]*$")); // Positive integer only
 }
 
 // === Block Parsing & Display ===
-static bool tryParseBlockFromLine(const string &line, Block &b)
+static bool tryParseBlockFromLine(const string &line, Block &i_Block)
 {
     stringstream ss(line);
     string temp;
 
-    if (!getline(ss, b.hash, ','))
+    if (!getline(ss, i_Block.hash, ','))
         return false;
     if (!getline(ss, temp, ','))
         return false;
-    b.height = stol(temp);
+    i_Block.height = stol(temp);
     if (!getline(ss, temp, ','))
         return false;
-    b.total = stoll(temp);
-    if (!getline(ss, b.time, ','))
+    i_Block.total = stoll(temp);
+    if (!getline(ss, i_Block.time, ','))
         return false;
-    if (!getline(ss, b.relayed_by, ','))
+    if (!getline(ss, i_Block.relayed_by, ','))
         return false;
-    if (!getline(ss, b.prev_block, ','))
+    if (!getline(ss, i_Block.prev_block, ','))
         return false;
 
     return true;
 }
 
-static void printBlock(const Block &b)
+static void printBlock(const Block &i_Block)
 {
-    cout << "hash: " << b.hash << endl;
-    cout << "height: " << b.height << endl;
-    cout << "total: " << b.total << endl;
-    cout << "time: " << b.time << endl;
-    cout << "relayed_by: " << b.relayed_by << endl;
-    cout << "prev_block: " << b.prev_block << endl;
+    cout << "hash: " << i_Block.hash << endl;
+    cout << "height: " << i_Block.height << endl;
+    cout << "total: " << i_Block.total << endl;
+    cout << "time: " << i_Block.time << endl;
+    cout << "relayed_by: " << i_Block.relayed_by << endl;
+    cout << "prev_block: " << i_Block.prev_block << endl;
 }
 
 // === Search by Hash ===
-static bool FindBlockByHash(const string &fileName, const string &hashQuery)
+static bool FindBlockByHash(const string &fileName, const string &i_hashQuery)
 {
     ifstream file;
     if (!openDatabaseCSV(file, fileName))
@@ -98,29 +119,29 @@ static bool FindBlockByHash(const string &fileName, const string &hashQuery)
     string line;
     getline(file, line); // Skip header
 
-    Block b;
+    Block tempCurrentBlock;
     while (getline(file, line))
     {
-        if (!tryParseBlockFromLine(line, b))
+        if (!tryParseBlockFromLine(line, tempCurrentBlock))
         {
             continue;
         }
 
-        if (b.hash == hashQuery)
+        if (tempCurrentBlock.hash == i_hashQuery)
         {
-            cout << "Printing block with hash: " << hashQuery << endl;
-            printBlock(b);
+            cout << "Printing block with hash: " << i_hashQuery << endl;
+            tempCurrentBlock.print();
             return true;
         }
     }
 
-    cout << "Block with hash: " << hashQuery << " was not found in the local database." << endl;
+    cout << "Block with hash: " << i_hashQuery << " was not found in the local database." << endl;
     cout << "Please run refresh database first." << endl;
     return false;
 }
 
 // === Search by Height ===
-static bool FindBlockByHeight(const string &fileName, const string &heightQuery)
+static bool FindBlockByHeight(const string &fileName, const string &i_heightQuery)
 {
     ifstream file;
     if (!openDatabaseCSV(file, fileName))
@@ -128,7 +149,7 @@ static bool FindBlockByHeight(const string &fileName, const string &heightQuery)
         return false;
     }
 
-    long targetHeight = stol(heightQuery);
+    long targetHeight = stol(i_heightQuery);
     string line;
     getline(file, line); // Skip header
 
@@ -142,13 +163,13 @@ static bool FindBlockByHeight(const string &fileName, const string &heightQuery)
 
         if (b.height == targetHeight)
         {
-            cout << "Printing block with height: " << heightQuery << endl;
+            cout << "Printing block with height: " << i_heightQuery << endl;
             printBlock(b);
             return true;
         }
     }
 
-    cout << "Block with height: " << heightQuery << " was not found in the local database." << endl;
+    cout << "Block with height: " << i_heightQuery << " was not found in the local database." << endl;
     cout << "Please run refresh database first." << endl;
     return false;
 }

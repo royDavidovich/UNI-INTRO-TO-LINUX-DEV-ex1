@@ -5,8 +5,8 @@
 
 using namespace std;
 
-constexpr const char* BLOCKCHAIN_BASH_FILE_PATH = "./assignment_1_a.sh";
-constexpr const char* DATABASE_CSV_FILE_NAME = "database.csv";
+constexpr const char *BLOCKCHAIN_BASH_FILE_PATH = "./assignment_1_a.sh";
+constexpr const char *DATABASE_CSV_FILE_NAME = "database.csv";
 
 struct Block
 {
@@ -16,6 +16,16 @@ struct Block
     string time;
     string relayed_by;
     string prev_block;
+
+    void print() const
+    {
+        cout << "hash: " << hash << endl;
+        cout << "height: " << height << endl;
+        cout << "total: " << total << endl;
+        cout << "time: " << time << endl;
+        cout << "relayed_by: " << relayed_by << endl;
+        cout << "prev_block: " << prev_block << endl;
+    }
 };
 
 static bool printdb(const string &DB_fileName);
@@ -56,7 +66,7 @@ static bool printdb(const string &DB_fileName)
         vector<Block> blocks = parseBlocksFromCSV(file);
         printBlockChain(blocks);
     }
-    
+
     return success;
 }
 
@@ -103,7 +113,7 @@ static void printBlockChain(const vector<Block> &blocks)
 {
     for (size_t i = 0; i < blocks.size(); ++i)
     {
-        printBlock(blocks[i]);
+        blocks[i].print();
 
         if (i != blocks.size() - 1)
         {
@@ -113,14 +123,4 @@ static void printBlockChain(const vector<Block> &blocks)
             cout << "                        V" << endl;
         }
     }
-}
-
-static void printBlock(const Block &block)
-{
-    cout << "hash: " << block.hash << endl;
-    cout << "height: " << block.height << endl;
-    cout << "total: " << block.total << endl;
-    cout << "time: " << block.time << endl;
-    cout << "relayed_by: " << block.relayed_by << endl;
-    cout << "prev_block: " << block.prev_block << endl;
 }

@@ -62,7 +62,7 @@ void printMenu()
     cout << "4) Export Data To .csv" << endl;
     cout << "5) Refresh Database (last N blocks)" << endl;
     cout << "6) Exit" << endl;
-    cout << "Enter Your Choice (1 – 6): ";
+    cout << "Enter Your Choice (1 <--> 6): ";
 }
 
 void printDatabase()
