@@ -5,8 +5,8 @@
 
 using namespace std;
 
-constexpr const char *BLOCKCHAIN_BASH_FILE_PATH = "./assignment_1_a.sh";
-constexpr const char *DATABASE_CSV_FILE_NAME = "database.csv";
+constexpr const char *BLOCKCHAIN_BASH_FILE_PATH = "../assignment_1_a.sh";
+constexpr const char *DATABASE_CSV_FILE_NAME = "../database.csv";
 
 struct Block
 {
@@ -33,7 +33,6 @@ static bool fileIsReadable(const string &fileName);
 static bool openDatabaseFile(const string &fileName, ifstream &file);
 static vector<Block> parseBlocksFromCSV(ifstream &file);
 static void printBlockChain(const vector<Block> &blocks);
-static void printBlock(const Block &block);
 
 // === Main ===
 int main()
