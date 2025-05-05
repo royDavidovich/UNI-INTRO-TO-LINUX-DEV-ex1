@@ -5,8 +5,8 @@
 
 using namespace std;
 
-constexpr const char *BLOCKCHAIN_BASH_FILE_PATH = "./assignment_1_a.sh";
-constexpr const char *DATABASE_CSV_FILE_NAME = "database.csv";
+constexpr const char *BLOCKCHAIN_BASH_FILE_PATH = "../assignment_1_a.sh";
+constexpr const char *DATABASE_CSV_FILE_NAME = "../database.csv";
 constexpr const char *MODE_SEARCH_BY_HASH = "--hash";
 constexpr const char *MODE_SEARCH_BY_HEIGHT = "--height";
 
@@ -30,7 +30,6 @@ struct Block
     }
 };
 
-static bool fileIsReadable(const string &fileName);
 static bool openDatabaseCSV(ifstream &file, const string &fileName);
 static bool isValidHash(const string &i_HashToCheck);
 static bool isValidHeight(const string &i_HeightToCheck);
@@ -42,11 +41,6 @@ static bool handleFindByHash(const string &input);
 static bool handleFindByHeight(const string &input);
 
 // === Utilities ===
-static bool fileIsReadable(const string &fileName)
-{
-    ifstream file(fileName);
-    return file.is_open();
-}
 
 static bool openDatabaseCSV(ifstream &file, const string &fileName)
 {

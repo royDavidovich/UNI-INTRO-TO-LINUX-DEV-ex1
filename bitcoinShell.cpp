@@ -56,6 +56,7 @@ int main()
 
 void printMenu()
 {
+    cout << "    --MENU--     " << endl;
     cout << "1) Print Database" << endl;
     cout << "2) Print Block By Hash" << endl;
     cout << "3) Print Block By Height" << endl;
@@ -68,33 +69,28 @@ void printMenu()
 void printDatabase()
 {
     cout << "Printing Database:" << endl;
-    system("./findByHash"); // Replace with actual executable if needed
+    system("./printDatabase");
 }
 
 void printBlockByHash()
 {
     string hash;
-    cout << "Enter Block Hash: ";
+    cout << "Enter block hash: ";
     getline(cin, hash);
-    cout << "Printing Block Hash: " << hash << endl;
-    system(("./refreshDb " + hash).c_str()); // Replace with proper hash tool
+    system(("./blockFinder --hash " + hash).c_str());
 }
 
 void printBlockByHeight()
 {
     string height;
-    cout << "Enter Block Height: ";
+    cout << "Enter block height: ";
     getline(cin, height);
-    cout << "Printing Block Height: " << height << endl;
-    system(("./refreshDb " + height).c_str()); // Replace with proper height tool
+    system(("./blockFinder --height " + height).c_str());
 }
 
 void exportToCSV()
 {
-    string count;
-    cout << "Enter Number Of Blocks To Import To The Database .csv File: ";
-    getline(cin, count);
-    system(("./refreshDb " + count).c_str()); // Replace with actual CSV exporter
+    // this isn't really needed, but kept for later use
 }
 
 void refreshDatabase()
@@ -102,5 +98,5 @@ void refreshDatabase()
     string count;
     cout << "Enter Number Of Blocks To Refresh To The Database .csv File: ";
     getline(cin, count);
-    system(("./refreshDb " + count).c_str()); // Replace with proper refresh logic
+    system(("./refreshDatabase " + count).c_str());
 }
