@@ -1,33 +1,59 @@
 # Compiler and flags
-CXX := g++
-CXXFLAGS := -Wall -Wextra -std=c++17
+CXX      := g++
+CXXFLAGS := -Wall -Wextra -std=c++17 -fPIC
 
 # Directories
-SRCDIR := .
+SRCDIR := src
 OBJDIR := obj
 BINDIR := bin
 
-# Source and object files
-SRCS := $(wildcard $(SRCDIR)/*.cpp)
-OBJS := $(patsubst $(SRCDIR)/%.cpp,$(OBJDIR)/%.o,$(SRCS))
-EXES := $(patsubst $(SRCDIR)/%.cpp,$(BINDIR)/%,$(SRCS))
+# Library
+LIBNAME := libblockchain_utils.so
+LIB     := $(OBJDIR)/$(LIBNAME)
 
-# Default target
-all: $(BINDIR) $(OBJDIR) $(EXES)
+# Executables
+EXES    := printDatabase blockFinder refreshDatabase bitcoinShell
 
-# Compile each source file to an executable
-$(BINDIR)/%: $(OBJDIR)/%.o
+# Default: build library + all bins
+all: $(BINDIR) $(OBJDIR) $(LIB) $(patsubst %,$(BINDIR)/%,$(EXES))
+	@echo
+	@echo "Build ended successfully!"
+
+# 1) Build any .cpp → .o
+$(OBJDIR)/%.o: $(SRCDIR)/%.cpp | $(OBJDIR)
+	$(CXX) $(CXXFLAGS) -I$(SRCDIR) -c $< -o $@
+
+# 2) Link utils .o → shared library
+$(LIB): $(OBJDIR)/blockchain_utils.o
+	$(CXX) -shared -o $@ $^
+
+# 3) Build executables:
+
+# ─── Shared‐lib users with RPATH ───
+$(BINDIR)/printDatabase: $(OBJDIR)/printDatabase.o $(LIB)
+	$(CXX) $(CXXFLAGS) \
+	      $< -L$(OBJDIR) -lblockchain_utils \
+	      -Wl,-rpath,'$$ORIGIN/../obj' \
+	      -o $@
+
+$(BINDIR)/blockFinder:   $(OBJDIR)/blockFinder.o   $(LIB)
+	$(CXX) $(CXXFLAGS) \
+	      $< -L$(OBJDIR) -lblockchain_utils \
+	      -Wl,-rpath,'$$ORIGIN/../obj' \
+	      -o $@
+
+# ─── Standalone tools ───
+$(BINDIR)/refreshDatabase: $(OBJDIR)/refreshDatabase.o
 	$(CXX) $(CXXFLAGS) $< -o $@
 
-# Compile source file to object file
-$(OBJDIR)/%.o: $(SRCDIR)/%.cpp | $(OBJDIR)
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+$(BINDIR)/bitcoinShell:    $(OBJDIR)/bitcoinShell.o
+	$(CXX) $(CXXFLAGS) $< -o $@
 
-# Create directories if they don’t exist
+# Ensure output directories exist
 $(BINDIR) $(OBJDIR):
 	mkdir -p $@
 
-# Clean up
+# Clean up build artifacts
 clean:
 	rm -rf $(OBJDIR) $(BINDIR)
 
